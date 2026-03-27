@@ -1,3 +1,3 @@
-function() {
-    let x = 45 + ( foo * bar )
-}
+let x=10
+foo()
+{a+b}
