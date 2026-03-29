@@ -1,3 +1,3 @@
-let x=10
-foo()
-{a+b}
+def function() {
+    bool x = 45 + (foo * bar)
+}

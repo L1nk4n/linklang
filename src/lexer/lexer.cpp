@@ -21,6 +21,8 @@ enum TokenType
     Equals,
     OpenParen,
     CloseParen,
+    OpenBracket,
+    CloseBracket,
     OpenCurlyBrackets,
     CloseCurlyBrackets,
     BinaryOperator,
@@ -45,7 +47,8 @@ enum TokenType
     i16,
     i32,
     i64,
-    i128
+    i128,
+    Def
 
 };
 
@@ -74,30 +77,43 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["false"] = TokenType::Bool;
     reservedIdent["Enum"] = TokenType::Enum;
     reservedIdent["Interface"] = TokenType::Interface;
+    reservedIdent["Def"] = TokenType::Def;
 }
 
 std::vector<std::string> splitString(const std::string &sourceCode)
 {
     std::vector<std::string> words;
     std::string word;
-     for (char ch : sourceCode)
-    {
-        if (!std::isspace(static_cast<unsigned char>(ch)))
-        {
-            word += ch;
-        }
-        else if (!word.empty())
-        {
+
+    auto pushWord = [&]() {
+        if (!word.empty()) {
             words.push_back(word);
             word.clear();
         }
-    }
+    };
 
-    if (!word.empty())
+    for (unsigned char ch : sourceCode)
     {
-        words.push_back(word);
+        if (std::isspace(ch))
+        {
+            pushWord();
+        }
+        else if (ch == '(' || ch == ')' ||
+                 ch == '{' || ch == '}' ||
+                 ch == '+' || ch == '-' ||
+                 ch == '*' || ch == '/' ||
+                 ch == '=')
+        {
+            pushWord();
+            words.push_back(std::string(1, ch));
+        }
+        else
+        {
+            word += ch;
+        }
     }
 
+    pushWord();
     return words;
 }
 
@@ -310,6 +326,14 @@ vector<Token> tokenize(string &sourceCode)
         {
             tokens.push_back(token(shift(src), TokenType::CloseParen));
         }
+        else if(src.front() == "[")
+        {
+            tokens.push_back(token(shift(src), TokenType::OpenBracket));
+        }
+        else if(src.front() == "]")
+        {
+            tokens.push_back(token(shift(src), TokenType::CloseBracket));
+        }
         else if(src.front() == "{")
         {
             tokens.push_back(token(shift(src), TokenType::OpenCurlyBrackets));
@@ -318,7 +342,8 @@ vector<Token> tokenize(string &sourceCode)
         {
             tokens.push_back(token(shift(src), TokenType::CloseCurlyBrackets));
         }
-        else if(src.front() == "+" || src.front() == "-" || src.front() == "*" || src.front() == "/")
+        else if(src.front() == "+" || src.front() == "-" || src.front() == "*" || src.front() == "/"
+        || src.front() == "==" || src.front() == "**")
         {
             tokens.push_back(token(shift(src), TokenType::BinaryOperator));
         }
@@ -334,6 +359,9 @@ vector<Token> tokenize(string &sourceCode)
         }
         else if(src.front() == "Struct") {
             tokens.push_back(token(shift(src), TokenType::Struct));
+        }
+        else if(src.front() == "def") {
+            tokens.push_back(token(shift(src), TokenType::Def));
         }
         else {
             if (isNumber(src.front()))
