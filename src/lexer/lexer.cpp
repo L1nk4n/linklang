@@ -25,6 +25,13 @@ enum TokenType
     CloseBracket,
     OpenCurlyBrackets,
     CloseCurlyBrackets,
+    Dot,
+    Comma,
+    Colon,
+    SemiColon,
+    LogicalOperator,
+    ComparisionOperator,
+    AssignmentForm,
     BinaryOperator,
     Let,
     Constant,
@@ -342,10 +349,22 @@ vector<Token> tokenize(string &sourceCode)
         {
             tokens.push_back(token(shift(src), TokenType::CloseCurlyBrackets));
         }
-        else if(src.front() == "+" || src.front() == "-" || src.front() == "*" || src.front() == "/"
-        || src.front() == "==" || src.front() == "**")
+        else if(src.front() == "+" || src.front() == "-" || src.front() == "*" || src.front() == "/")
         {
             tokens.push_back(token(shift(src), TokenType::BinaryOperator));
+        }
+        else if (src.front() == "+=" || src.front() == "-=" || src.front() == "*=" || src.front() == "/="
+        || src.front() == "%=") {
+            tokens.push_back(token(shift(src), TokenType::AssignmentForm));
+        }
+        else if (src.front() == "==" || src.front() == "!=" || src.front() == "<" || src.front() == ">"
+        || src.front() == "<=" || src.front() == ">=")
+        {
+            tokens.push_back(token(shift(src), TokenType::ComparisionOperator));
+        }
+        else if (src.front() == "&&" || src.front() == "||" || src.front() == "!")
+        {
+            tokens.push_back(token(shift(src), TokenType::LogicalOperator));
         }
         else if(src.front() == "=")
         {
