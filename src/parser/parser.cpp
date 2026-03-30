@@ -87,12 +87,114 @@ private:
             return classDeclaration();
         }
 
+        if(check(TokenType::Enum))
+        {
+            return enumDeclaration();
+        }
+
+        if(check(TokenType::Struct))
+        {
+            return structDeclaration();
+        }
+
+        if(check(TokenType::For))
+        {
+            return forStatement();
+        }
+
+        if(check(TokenType::While))
+        {
+            return whileStatement();
+        }
+
         cerr << "Syntax error: expected statement";
         if (!isAtEnd()) {
             cerr << " near '" << peek().value << "'";
         }
         cerr << endl;
         return false;
+    }
+
+    bool type() {
+        if (match(TokenType::I8)   ||
+            match(TokenType::I16)  ||
+            match(TokenType::I32)  ||
+            match(TokenType::I64)  ||
+            match(TokenType::I128) ||
+            match(TokenType::Ui8)  ||
+            match(TokenType::Ui16) ||
+            match(TokenType::Ui32) ||
+            match(TokenType::Ui64) ||
+            match(TokenType::Ui128)) {
+            return true;
+        }
+
+        cerr << "Syntax error: expected type";
+        if (!isAtEnd()) {
+            cerr << " near '" << peek().value << "'";
+        }
+        cerr << endl;
+        return false;
+    }
+
+    bool forStatement()
+    {
+        if(!expect(TokenType::For, "expected 'for'")) return false;
+        if(!expect(TokenType::OpenParen, "expected '(' after 'for'")) return false;
+        if(!type()) return false;
+        if(!expect(TokenType::Identifier, "expected variable name")) return false;
+        if(!expect(TokenType::Equals, "expected '=' in initialization")) return false;
+        if(!expression()) return false;
+        if(!expect(TokenType::SemiColon, "expected ';' after init")) return false;
+        if(!expression()) return false;
+        if (!expect(TokenType::SemiColon, "expected ';' after condition")) return false;
+        if (!expect(TokenType::Identifier, "expected variable in increment")) return false;
+        if (!expect(TokenType::IncrementOperator, "expected '++'")) return false;
+        if (!expect(TokenType::CloseParen, "expected ')'")) return false;
+        return block();
+    }
+
+    bool whileStatement()
+    {
+        if (!expect(TokenType::While, "expected 'while'")) return false;
+        if (!expect(TokenType::OpenParen, "expected '(' after 'while'")) return false;
+
+        if (!expression()) {
+            cerr << "Syntax error: expected condition in while";
+            if (!isAtEnd()) {
+                cerr << " near '" << peek().value << "'";
+            }
+            cerr << endl;
+            return false;
+        }
+
+        if (!expect(TokenType::CloseParen, "expected ')' after condition")) return false;
+
+        return block();
+    }
+
+    bool structDeclaration() {
+        if(!expect(TokenType::Struct, "expected 'Struct'"))
+        {
+            return false;
+        }
+        if(!expect(TokenType::Identifier, "expected identifier after 'Struct'"))
+        {
+            return false;
+        }
+        return block();
+    }
+
+    bool enumDeclaration() {
+        if(!expect(TokenType::Enum, "expected 'Enum'"))
+        {
+            return false;
+        }
+        if(!expect(TokenType::Identifier, "expected identifier after 'Enum'"))
+        {
+            return false;
+        }
+        return block();
     }
 
     bool classDeclaration() {
@@ -117,6 +219,37 @@ private:
         }
 
         return block();
+    }
+
+    bool arrayDeclaration()
+    {
+        if(!expect(TokenType::Array, "expected 'Array'")) {
+            return false;
+        }
+        if (!expect(TokenType::Identifier, "expected identifier after 'Array'"))
+        {
+            return false;
+        }
+        return block();
+    }
+
+    bool forLoop() {
+        if(!expect(TokenType::OpenCurlyBrackets, "expected '{' to start 'for' loop"))
+        {
+            return false;
+        }
+        while(!isAtEnd() && !check(TokenType::CloseCurlyBrackets))
+        {
+            if(!statement())
+            {
+                return false;
+            }
+        }
+        if(!expect(TokenType::CloseCurlyBrackets, "expected '}' to close 'for' loop"))
+        {
+            return false;
+        }
+        return true;
     }
 
     bool block() {
@@ -219,24 +352,27 @@ private:
     }
 
     bool factor() {
-        if (match(TokenType::Number)) return true;
-        if (match(TokenType::Identifier)) return true;
-        if (match(TokenType::Bool)) return true;
+    if (match(TokenType::Identifier)) {
 
-        if (match(TokenType::OpenParen)) {
-            if (!expression()) {
+        while (match(TokenType::Dot)) {
+            if (!expect(TokenType::Identifier, "expected property after '.'")) {
                 return false;
             }
-
-            if (!expect(TokenType::CloseParen, "expected ')' after expression")) {
-                return false;
-            }
-
-            return true;
         }
 
-        return false;
+        return true;
     }
+
+    if (match(TokenType::Number)) return true;
+    if (match(TokenType::Bool)) return true;
+
+    if (match(TokenType::OpenParen)) {
+        if (!expression()) return false;
+        return expect(TokenType::CloseParen, "expected ')'");
+    }
+
+    return false;
+}
 };
 
 int main(int argc, char *argv[])

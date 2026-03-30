@@ -26,11 +26,11 @@ enum class TokenType
     ComparisionOperator,
     AssignmentForm,
     BinaryOperator,
+    IncrementOperator,
 
     Let,
     Constant,
     Function,
-    Def,
 
     Bool,
     Double,
@@ -43,6 +43,11 @@ enum class TokenType
     Struct,
     Interface,
     Enum,
+    Array,
+
+    For,
+    While,
+    If,
 
     Ui8,
     Ui16,

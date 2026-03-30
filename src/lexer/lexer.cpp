@@ -30,7 +30,20 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["false"] = TokenType::Bool;
     reservedIdent["Enum"] = TokenType::Enum;
     reservedIdent["Interface"] = TokenType::Interface;
-    reservedIdent["Def"] = TokenType::Def;
+    reservedIdent["Array"] = TokenType::Array;
+    reservedIdent["for"] = TokenType::For;
+    reservedIdent["while"] = TokenType::While;
+    reservedIdent["i8"] = TokenType::I8;
+    reservedIdent["i16"] = TokenType::I16;
+    reservedIdent["i32"] = TokenType::I32;
+    reservedIdent["i64"] = TokenType::I64;
+    reservedIdent["i128"] = TokenType::I128;
+
+    reservedIdent["ui8"] = TokenType::Ui8;
+    reservedIdent["ui16"] = TokenType::Ui16;
+    reservedIdent["ui32"] = TokenType::Ui32;
+    reservedIdent["ui64"] = TokenType::Ui64;
+    reservedIdent["ui128"] = TokenType::Ui128;
 }
 
 std::vector<std::string> splitString(const std::string &sourceCode)
@@ -45,17 +58,41 @@ std::vector<std::string> splitString(const std::string &sourceCode)
         }
     };
 
-    for (unsigned char ch : sourceCode)
+    for (size_t i = 0; i < sourceCode.size(); ++i)
     {
+        unsigned char ch = sourceCode[i];
+
         if (std::isspace(ch))
         {
             pushWord();
+            continue;
         }
-        else if (ch == '(' || ch == ')' ||
-                 ch == '{' || ch == '}' ||
-                 ch == '+' || ch == '-' ||
-                 ch == '*' || ch == '/' ||
-                 ch == '=' || ch == ';')
+
+        if (i + 1 < sourceCode.size())
+        {
+            std::string two = sourceCode.substr(i, 2);
+
+            if (two == "++" || two == "==" || two == "!=" ||
+                two == "<=" || two == ">=" || two == "+=" ||
+                two == "-=" || two == "*=" || two == "/=" ||
+                two == "&&" || two == "||")
+            {
+                pushWord();
+                words.push_back(two);
+                ++i;
+                continue;
+            }
+        }
+
+        if (ch == '(' || ch == ')' ||
+            ch == '{' || ch == '}' ||
+            ch == '[' || ch == ']' ||
+            ch == '+' || ch == '-' ||
+            ch == '*' || ch == '/' ||
+            ch == '=' || ch == ';' ||
+            ch == '<' || ch == '>' ||
+            ch == '.' || ch == ',' ||
+            ch == ':' || ch == '!')
         {
             pushWord();
             words.push_back(std::string(1, ch));
@@ -236,11 +273,18 @@ bool isNumber(const string &str) {
     return true;
 }
 
-bool isAlpha(const string &str) {
-    for (char ch: str) {
-        if (!isalpha(ch))
+bool isAlpha(const std::string &str) {
+    if (str.empty()) return false;
+
+    if (!std::isalpha((unsigned char)str[0]) && str[0] != '_')
+        return false;
+
+    for (size_t i = 1; i < str.size(); ++i) {
+        unsigned char ch = (unsigned char)str[i];
+        if (!std::isalnum(ch) && ch != '_')
             return false;
     }
+
     return true;
 }
 
@@ -250,6 +294,10 @@ bool isClass(const string &str) {
 
 bool isStruct(const string &str) {
     return str == "Struct";
+}
+
+bool isArray(const string &str) {
+    return str == "Array";
 }
 
 bool isSkippable(char ch) {
@@ -308,6 +356,10 @@ vector<Token> tokenize(string &sourceCode)
         {
             tokens.push_back(token(shift(src), TokenType::BinaryOperator));
         }
+        else if(src.front() == "++")
+        {
+            tokens.push_back(token(shift(src), TokenType::IncrementOperator));
+        }
         else if (src.front() == "+=" || src.front() == "-=" || src.front() == "*=" || src.front() == "/="
         || src.front() == "%=") {
             tokens.push_back(token(shift(src), TokenType::AssignmentForm));
@@ -321,6 +373,10 @@ vector<Token> tokenize(string &sourceCode)
         {
             tokens.push_back(token(shift(src), TokenType::LogicalOperator));
         }
+        else if(src.front() == ".")
+        {
+            tokens.push_back(token(shift(src), TokenType::Dot));
+        }
         else if(src.front() == "=")
         {
             tokens.push_back(token(shift(src), TokenType::Equals));
@@ -331,11 +387,16 @@ vector<Token> tokenize(string &sourceCode)
         else if(src.front() == "Class") {
             tokens.push_back(token(shift(src), TokenType::Class));
         }
+        else if(src.front() == "Enum")
+        {
+            tokens.push_back(token(shift(src), TokenType::Enum));
+        }
+        else if(src.front() == "Array")
+        {
+            tokens.push_back(token(shift(src), TokenType::Array));
+        }
         else if(src.front() == "Struct") {
             tokens.push_back(token(shift(src), TokenType::Struct));
-        }
-        else if(src.front() == "def") {
-            tokens.push_back(token(shift(src), TokenType::Def));
         }
         else {
             if (isNumber(src.front()))
