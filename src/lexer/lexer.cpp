@@ -10,64 +10,10 @@
 #include <cstring>
 #include <cstdlib>
 #include <math.h>
+#include "token.h"
 using namespace std;
 
 
-
-enum TokenType
-{
-    Number,
-    Identifier,
-    Equals,
-    OpenParen,
-    CloseParen,
-    OpenBracket,
-    CloseBracket,
-    OpenCurlyBrackets,
-    CloseCurlyBrackets,
-    Dot,
-    Comma,
-    Colon,
-    SemiColon,
-    LogicalOperator,
-    ComparisionOperator,
-    AssignmentForm,
-    BinaryOperator,
-    Let,
-    Constant,
-    Function,
-    Bool,
-    Double,
-    String,
-    Float,
-    Long,
-    Class,
-    Struct,
-    Interface,
-    Enum,
-    Ui8,
-    Ui16,
-    Ui32,
-    Ui64,
-    Ui128,
-    i8,
-    i16,
-    i32,
-    i64,
-    i128,
-    Def
-
-};
-
-struct Booleans {
-    string True, False;
-};
-
-struct Token
-{
-    string value;
-    TokenType type;
-};
 
 typedef std::map<std::string, TokenType> ReservedIdentMap;
 ReservedIdentMap reservedIdent;
@@ -109,7 +55,7 @@ std::vector<std::string> splitString(const std::string &sourceCode)
                  ch == '{' || ch == '}' ||
                  ch == '+' || ch == '-' ||
                  ch == '*' || ch == '/' ||
-                 ch == '=')
+                 ch == '=' || ch == ';')
         {
             pushWord();
             words.push_back(std::string(1, ch));
@@ -322,6 +268,11 @@ Token token(string value, TokenType tokentype) {
 
 vector<Token> tokenize(string &sourceCode)
 {
+
+    if(reservedIdent.empty())
+    {
+        INIT_RESERVED_IDENTIFIER();
+    }
     vector<Token> tokens;
     vector<string> src = splitString(sourceCode);
     while (!src.empty()){
@@ -332,6 +283,10 @@ vector<Token> tokenize(string &sourceCode)
         else if(src.front() == ")")
         {
             tokens.push_back(token(shift(src), TokenType::CloseParen));
+        }
+        else if(src.front() == ";")
+        {
+            tokens.push_back(token(shift(src), TokenType::SemiColon));
         }
         else if(src.front() == "[")
         {
@@ -370,7 +325,7 @@ vector<Token> tokenize(string &sourceCode)
         {
             tokens.push_back(token(shift(src), TokenType::Equals));
         }
-        else if(src.front() == "function" || src.front() == "function()") {
+        else if(src.front() == "Function" || src.front() == "function()") {
             tokens.push_back(token(shift(src), TokenType::Function));
         }
         else if(src.front() == "Class") {
@@ -419,43 +374,4 @@ vector<Token> tokenize(string &sourceCode)
     }
 
     return tokens;
-}
-
-
-int main(int argc, char *argv[])
-{
-    if (argc != 2)
-    {
-        std::cerr << "Incorrect arguments" << std::endl;
-        std::cerr << "Correct usage: ./dejavu <input file path --> input.vu>" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    {
-        const char *ext = ".ll";
-        size_t xlen = strlen(ext);
-        size_t slen = strlen(argv[1]);
-        int found = strcmp(argv[1] + slen - xlen, ext) == 0;
-        if (found == 0)
-        {
-            std::cerr << "Invalid code file" << std::endl;
-            return EXIT_FAILURE;
-        }
-    }
-
-    INIT_RESERVED_IDENTIFIER();
-
-    std::string sourceCode;
-    {
-        std::stringstream contents_stream;
-        std::fstream input(argv[1], std::ios::in);
-        contents_stream << input.rdbuf();
-        sourceCode = contents_stream.str();
-    }
-
-    std::vector<Token> tokens = tokenize(sourceCode);
-    for (int i = 0; i < tokens.size(); ++i)
-    {
-        std::cout << "Value: " << tokens[i].value << "   Type: " << tokens[i].type << std::endl;
-    }
 }
