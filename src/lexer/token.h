@@ -31,6 +31,11 @@ enum class TokenType
     Let,
     Constant,
     Function,
+    
+    // BuiltIn
+    Print,
+    Return,
+    StartJerkingIt,
 
     Bool,
     Double,

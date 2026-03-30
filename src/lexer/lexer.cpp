@@ -38,12 +38,22 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["i32"] = TokenType::I32;
     reservedIdent["i64"] = TokenType::I64;
     reservedIdent["i128"] = TokenType::I128;
-
     reservedIdent["ui8"] = TokenType::Ui8;
     reservedIdent["ui16"] = TokenType::Ui16;
     reservedIdent["ui32"] = TokenType::Ui32;
     reservedIdent["ui64"] = TokenType::Ui64;
     reservedIdent["ui128"] = TokenType::Ui128;
+}
+
+typedef std::map<std::string, TokenType> builtinFunctionMap;
+builtinFunctionMap builtinFunctions;
+
+/* DONT TOUCH CHANGING THESE WILL FUCK UP THE WHOLE LANGUAGE*/
+void INBUILT_FUNCTIONS()
+{
+    builtinFunctions["Print"] = TokenType::Print;
+    builtinFunctions["Return"] = TokenType::Return;
+    builtinFunctions["Goon"] = TokenType::StartJerkingIt;
 }
 
 std::vector<std::string> splitString(const std::string &sourceCode)
@@ -320,6 +330,10 @@ vector<Token> tokenize(string &sourceCode)
     if(reservedIdent.empty())
     {
         INIT_RESERVED_IDENTIFIER();
+    }
+    if(builtinFunctions.empty())
+    {
+        INBUILT_FUNCTIONS();
     }
     vector<Token> tokens;
     vector<string> src = splitString(sourceCode);
