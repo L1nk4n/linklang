@@ -20,6 +20,7 @@ enum class TokenType
     Dot,
     Comma,
     Colon,
+    Quotes,
     SemiColon,
 
     LogicalOperator,
@@ -35,6 +36,7 @@ enum class TokenType
     // BuiltIn
     Print,
     PrintLn,
+    FetchReturn,
     Return,
     Exit,
     TypeOf,
@@ -58,6 +60,7 @@ enum class TokenType
     Bool,
     Double,
     String,
+    StringLiteral,
     Float,
     Long,
 

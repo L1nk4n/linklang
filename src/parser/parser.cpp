@@ -92,9 +92,18 @@ private:
             return enumDeclaration();
         }
 
+        if (isTypeToken(peek().type)) {
+            return typedDeclaration();
+        }
+
         if(check(TokenType::Struct))
         {
             return structDeclaration();
+        }
+
+        if(check(TokenType::Length))
+        {
+            return lengthStatement();
         }
 
         if(check(TokenType::For))
@@ -107,9 +116,34 @@ private:
             return printStatement();
         }
 
+        if(check(TokenType::Length))
+        {
+            return lengthStatement();
+        }
+        
+        if(check(TokenType::TypeOf))
+        {
+            return TypeOfStatement();
+        }
+
+        if(check(TokenType::SizeOf))
+        {
+            return SizeOfStatement();
+        }
+
+        if(check(TokenType::Return))
+        {
+            return returnStatement();
+        }
+
         if(check(TokenType::PrintLn))
         {
             return printlnStatement();
+        }
+
+        if(check(TokenType::Exit))
+        {
+            return exitStatement();
         }
 
         if(check(TokenType::While))
@@ -126,7 +160,12 @@ private:
     }
 
     bool type() {
-        if (match(TokenType::I8)   ||
+        if (match(TokenType::String) ||
+            match(TokenType::Bool) ||
+            match(TokenType::Double) ||
+            match(TokenType::Float) ||
+            match(TokenType::Long) ||
+            match(TokenType::I8)   ||
             match(TokenType::I16)  ||
             match(TokenType::I32)  ||
             match(TokenType::I64)  ||
@@ -147,14 +186,48 @@ private:
         return false;
     }
 
-    bool printStatement()
+    bool returnStatement()
     {
-        if(!expect(TokenType::Print, "expected 'Print'")) return false;
-        if(!expect(TokenType::OpenParen, "expected '(' after 'Print'")) return false;
-        if(!check(TokenType::CloseParen))
+        if(!expect(TokenType::Return, "expected 'Return")) return false;
+        if(!expression()) {
+            cerr << "Syntax error: expected expression after 'Return'";
+            if(!isAtEnd())
+            {
+                cerr << " near '" << peek().value << "'";
+            }
+            cerr << endl;
+            return false;
+        }
+        if(!expect(TokenType::SemiColon, "expected ';' after 'Return'")) return false;
+        return true;
+    }
+
+    bool exitStatement()
+    {
+        if(!expect(TokenType::Exit, "expected 'Exit'")) return false;
+        if(!expect(TokenType::SemiColon, "expected ';' after 'Exit'")) return false;
+        return true;
+    }
+
+    bool fetchReturnExpression()
+    {
+        if(!expect(TokenType::FetchReturn, "expected 'FetchReturn'")) return false;
+        if(!expect(TokenType::OpenParen, "expected '(' after 'FetchReturn'")) return false;
+        if(!expect(TokenType::Identifier, "expected declared function name inside 'FetchReturn'")) return false;
+        if(!expect(TokenType::CloseParen, "expected ')' after 'FetchReturn' argument")) return false;
+        return true; 
+    }
+
+
+    bool SizeOfStatement()
+    {
+        if(!expect(TokenType::SizeOf, "expected 'SizeOf")) return false;
+        if(!expect(TokenType::OpenParen, "expected '(' after 'SizeOf")) return false;
+        if(!check(TokenType::CloseParen)) 
         {
-            if(!expression()){
-                cerr << "Syntax error: expected expression inside Print";
+            if(!expression())
+            {
+                cerr << "Syntax error: expected expression inside of 'SizeOf'";
                 if(!isAtEnd())
                 {
                     cerr << " near '" << peek().value << "'";
@@ -176,8 +249,101 @@ private:
                 }
             }
         }
-        if(!expect(TokenType::CloseParen, "expected ')' after Print arguments")) return false;
-        if(!expect(TokenType::SemiColon, "expected ';' after Print")) return false;
+        if(!expect(TokenType::CloseParen, "expected ')' after 'Print' arguments")) return false;
+        if(!expect(TokenType::SemiColon, "expected ';' after 'Print'")) return false;
+        return true;
+    }
+
+    bool TypeOfStatement()
+    {
+        if(!expect(TokenType::TypeOf, "expected 'TypeOf'")) return false;
+        if(!expect(TokenType::OpenParen, "expected '(' after 'TypeOf'")) return false;
+        if(!check(TokenType::CloseParen))
+        {
+            if(!expression())
+            {
+                cerr << "Syntax error: expected expression inside 'TypeOf'";
+                if(!isAtEnd())
+                {
+                    cerr << " near '" << peek().value << "'";
+                }
+                cerr << endl;
+                return false;
+            }
+            while(match(TokenType::Comma))
+            {
+                if(!expression())
+                {
+                    cerr << "Syntax error: expected expression after ','";
+                    if(!isAtEnd())
+                    {
+                        cerr << " near '" << peek().value << "'";
+                    }
+                    cerr << endl;
+                    return false;
+                }
+            }
+        }
+        if(!expect(TokenType::CloseParen, "expected ')' after 'Print' arguments")) return false;
+        if(!expect(TokenType::SemiColon, "expected ';' after 'Print'")) return false;
+        return true;
+    }
+
+    bool lengthStatement()
+    {
+        if(!expect(TokenType::Length, "expected 'Length'")) return false;
+        if(!expect(TokenType::OpenParen, "expected '(' after 'Length'")) return false;
+        if(!expect(TokenType::Identifier, "expected declared variable name inside 'Length'")) return false;
+        if(!check(TokenType::CloseParen))
+        {
+            if(!expression())
+            {
+                cerr << "Syntax error: expected expression inside of 'Length'";
+                if(!isAtEnd())
+                {
+                    cerr << " near '" << peek().value << "'";
+                }
+                cerr << endl;
+                return false;
+            }
+            
+        }
+        if(!expect(TokenType::CloseParen, "expected ')' after 'Length' argument")) return false;
+        if(!expect(TokenType::SemiColon, "expected ';' after 'Length'")) return false;
+        return true;
+    }
+
+    bool printStatement()
+    {
+        if(!expect(TokenType::Print, "expected 'Print'")) return false;
+        if(!expect(TokenType::OpenParen, "expected '(' after 'Print'")) return false;
+        if(!check(TokenType::CloseParen))
+        {
+            if(!expression()){
+                cerr << "Syntax error: expected expression inside 'Print'";
+                if(!isAtEnd())
+                {
+                    cerr << " near '" << peek().value << "'";
+                }
+                cerr << endl;
+                return false;
+            }
+            while(match(TokenType::Comma))
+            {
+                if(!expression())
+                {
+                    cerr << "Syntax error: expected expression after ','";
+                    if(!isAtEnd())
+                    {
+                        cerr << " near '" << peek().value << "'";
+                    }
+                    cerr << endl;
+                    return false;
+                }
+            }
+        }
+        if(!expect(TokenType::CloseParen, "expected ')' after 'Print' arguments")) return false;
+        if(!expect(TokenType::SemiColon, "expected ';' after 'Print'")) return false;
         return true;
     }
 
@@ -261,6 +427,54 @@ private:
             return false;
         }
         return block();
+    }
+
+    bool typedDeclaration()
+    {
+        if (!type()) {
+            return false;
+        }
+
+        if (!expect(TokenType::Identifier, "expected identifier after type")) {
+            return false;
+        }
+
+        if (!expect(TokenType::Equals, "expected '=' after identifier")) {
+            return false;
+        }
+
+        if (!expression()) {
+            cerr << "Syntax error: expected expression after '='";
+            if (!isAtEnd()) {
+                cerr << " near '" << peek().value << "'";
+            }
+            cerr << endl;
+            return false;
+        }
+
+        if (!expect(TokenType::SemiColon, "expected ';' after typed declaration")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool isTypeToken(TokenType type) const {
+        return type == TokenType::String ||
+            type == TokenType::Bool ||
+            type == TokenType::Double ||
+            type == TokenType::Float ||
+            type == TokenType::Long ||
+            type == TokenType::I8 ||
+            type == TokenType::I16 ||
+            type == TokenType::I32 ||
+            type == TokenType::I64 ||
+            type == TokenType::I128 ||
+            type == TokenType::Ui8 ||
+            type == TokenType::Ui16 ||
+            type == TokenType::Ui32 ||
+            type == TokenType::Ui64 ||
+            type == TokenType::Ui128;
     }
 
 
@@ -431,14 +645,18 @@ private:
     }
 
     bool factor() {
-    if (match(TokenType::Identifier)) {
+    if (check(TokenType::FetchReturn)) {
+        return fetchReturnExpression();
+    }
 
+    if (match(TokenType::StringLiteral)) return true;
+
+    if (match(TokenType::Identifier)) {
         while (match(TokenType::Dot)) {
             if (!expect(TokenType::Identifier, "expected property after '.'")) {
                 return false;
             }
         }
-
         return true;
     }
 

@@ -43,6 +43,7 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["ui32"] = TokenType::Ui32;
     reservedIdent["ui64"] = TokenType::Ui64;
     reservedIdent["ui128"] = TokenType::Ui128;
+    reservedIdent["String"] = TokenType::String;
 
     // BuiltIn General Functions
     reservedIdent["Print"] = TokenType::Print;
@@ -58,6 +59,7 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["ToString"] = TokenType::ToString;
     reservedIdent["ToInt"] = TokenType::ToInt;
     reservedIdent["ToBool"] = TokenType::ToBool;
+    reservedIdent["FetchReturn"] = TokenType::ToBool;
 
     // BuiltIn Math Functions
     reservedIdent["Abs"] = TokenType::Abs;
@@ -91,6 +93,31 @@ std::vector<std::string> splitString(const std::string &sourceCode)
         if (std::isspace(ch))
         {
             pushWord();
+            continue;
+        }
+
+        if (ch == '"')
+        {
+            pushWord();
+
+            std::string str;
+            str += ch;
+            ++i;
+
+            while (i < sourceCode.size() && sourceCode[i] != '"')
+            {
+                str += sourceCode[i];
+                ++i;
+            }
+
+            if (i >= sourceCode.size())
+            {
+                std::cerr << "Unterminated string literal!" << std::endl;
+                exit(1);
+            }
+
+            str += '"';
+            words.push_back(str);
             continue;
         }
 
@@ -139,6 +166,10 @@ string shift(vector<string> &src)
     string current = src.front();
     src.erase(src.begin());
     return current;
+}
+
+bool isStringLiteral(const std::string &str) {
+    return str.size() >= 2 && str.front() == '"' && str.back() == '"';
 }
 
 bool isLong(const string &str) {
@@ -417,6 +448,9 @@ vector<Token> tokenize(string &sourceCode)
         else if(src.front() == "Class") {
             tokens.push_back(token(shift(src), TokenType::Class));
         }
+        else if(src.front() == "FetchReturn") {
+            tokens.push_back(token(shift(src), TokenType::FetchReturn));
+        }
         else if(src.front() == "Enum")
         {
             tokens.push_back(token(shift(src), TokenType::Enum));
@@ -437,6 +471,10 @@ vector<Token> tokenize(string &sourceCode)
                     number += shift(src);
                 }
                 tokens.push_back(token(number, TokenType::Number));
+            }
+            else if(isStringLiteral(src.front()))
+            {
+                tokens.push_back(token(shift(src), TokenType::StringLiteral));
             }
             else if (isAlpha(src.front()))
             {
