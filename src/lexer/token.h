@@ -35,7 +35,6 @@ enum class TokenType
     // BuiltIn
     Print,
     Return,
-    StartJerkingIt,
 
     Bool,
     Double,

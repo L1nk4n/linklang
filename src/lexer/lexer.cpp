@@ -48,12 +48,10 @@ void INIT_RESERVED_IDENTIFIER()
 typedef std::map<std::string, TokenType> builtinFunctionMap;
 builtinFunctionMap builtinFunctions;
 
-/* DONT TOUCH CHANGING THESE WILL FUCK UP THE WHOLE LANGUAGE*/
 void INBUILT_FUNCTIONS()
 {
     builtinFunctions["Print"] = TokenType::Print;
     builtinFunctions["Return"] = TokenType::Return;
-    builtinFunctions["Goon"] = TokenType::StartJerkingIt;
 }
 
 std::vector<std::string> splitString(const std::string &sourceCode)
