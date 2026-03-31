@@ -34,7 +34,26 @@ enum class TokenType
     
     // BuiltIn
     Print,
+    PrintLn,
     Return,
+    Exit,
+    TypeOf,
+    SizeOf,
+    Length,
+    Push,
+    Pop,
+    Clear,
+    ToString,
+    ToInt,
+    ToBool,
+
+    Abs,
+    Min,
+    Max,
+    Pow,
+
+    Concat,
+    SubString,
 
     Bool,
     Double,

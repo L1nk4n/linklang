@@ -31,8 +31,8 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["Enum"] = TokenType::Enum;
     reservedIdent["Interface"] = TokenType::Interface;
     reservedIdent["Array"] = TokenType::Array;
-    reservedIdent["for"] = TokenType::For;
-    reservedIdent["while"] = TokenType::While;
+    reservedIdent["For"] = TokenType::For;
+    reservedIdent["While"] = TokenType::While;
     reservedIdent["i8"] = TokenType::I8;
     reservedIdent["i16"] = TokenType::I16;
     reservedIdent["i32"] = TokenType::I32;
@@ -43,16 +43,34 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["ui32"] = TokenType::Ui32;
     reservedIdent["ui64"] = TokenType::Ui64;
     reservedIdent["ui128"] = TokenType::Ui128;
+
+    // BuiltIn General Functions
+    reservedIdent["Print"] = TokenType::Print;
+    reservedIdent["PrintLn"] = TokenType::PrintLn;
+    reservedIdent["Return"] = TokenType::Return;
+    reservedIdent["Exit"] = TokenType::Exit;
+    reservedIdent["TypeOf"] = TokenType::TypeOf;
+    reservedIdent["SizeOf"] = TokenType::SizeOf;
+    reservedIdent["Length"] = TokenType::Length;
+    reservedIdent["Push"] = TokenType::Push;
+    reservedIdent["Pop"] = TokenType::Pop;
+    reservedIdent["Clear"] = TokenType::Clear;
+    reservedIdent["ToString"] = TokenType::ToString;
+    reservedIdent["ToInt"] = TokenType::ToInt;
+    reservedIdent["ToBool"] = TokenType::ToBool;
+
+    // BuiltIn Math Functions
+    reservedIdent["Abs"] = TokenType::Abs;
+    reservedIdent["Min"] = TokenType::Min;
+    reservedIdent["Max"] = TokenType::Max;
+    reservedIdent["Pow"] = TokenType::Pow;
+    
+    // BuiltIn String Functions
+    reservedIdent["Concat"] = TokenType::Concat;
+    reservedIdent["SubString"] = TokenType::SubString;
+
 }
 
-typedef std::map<std::string, TokenType> builtinFunctionMap;
-builtinFunctionMap builtinFunctions;
-
-void INBUILT_FUNCTIONS()
-{
-    builtinFunctions["Print"] = TokenType::Print;
-    builtinFunctions["Return"] = TokenType::Return;
-}
 
 std::vector<std::string> splitString(const std::string &sourceCode)
 {
@@ -329,10 +347,6 @@ vector<Token> tokenize(string &sourceCode)
     {
         INIT_RESERVED_IDENTIFIER();
     }
-    if(builtinFunctions.empty())
-    {
-        INBUILT_FUNCTIONS();
-    }
     vector<Token> tokens;
     vector<string> src = splitString(sourceCode);
     while (!src.empty()){
@@ -393,7 +407,11 @@ vector<Token> tokenize(string &sourceCode)
         {
             tokens.push_back(token(shift(src), TokenType::Equals));
         }
-        else if(src.front() == "Function" || src.front() == "function()") {
+        else if(src.front() == ",")
+        {
+            tokens.push_back(token(shift(src), TokenType::Comma));
+        }
+        else if(src.front() == "Function") {
             tokens.push_back(token(shift(src), TokenType::Function));
         }
         else if(src.front() == "Class") {

@@ -102,6 +102,16 @@ private:
             return forStatement();
         }
 
+        if(check(TokenType::Print))
+        {
+            return printStatement();
+        }
+
+        if(check(TokenType::PrintLn))
+        {
+            return printlnStatement();
+        }
+
         if(check(TokenType::While))
         {
             return whileStatement();
@@ -135,6 +145,74 @@ private:
         }
         cerr << endl;
         return false;
+    }
+
+    bool printStatement()
+    {
+        if(!expect(TokenType::Print, "expected 'Print'")) return false;
+        if(!expect(TokenType::OpenParen, "expected '(' after 'Print'")) return false;
+        if(!check(TokenType::CloseParen))
+        {
+            if(!expression()){
+                cerr << "Syntax error: expected expression inside Print";
+                if(!isAtEnd())
+                {
+                    cerr << " near '" << peek().value << "'";
+                }
+                cerr << endl;
+                return false;
+            }
+            while(match(TokenType::Comma))
+            {
+                if(!expression())
+                {
+                    cerr << "Syntax error: expected expression after ','";
+                    if(!isAtEnd())
+                    {
+                        cerr << " near '" << peek().value << "'";
+                    }
+                    cerr << endl;
+                    return false;
+                }
+            }
+        }
+        if(!expect(TokenType::CloseParen, "expected ')' after Print arguments")) return false;
+        if(!expect(TokenType::SemiColon, "expected ';' after Print")) return false;
+        return true;
+    }
+
+    bool printlnStatement()
+    {
+        if(!expect(TokenType::PrintLn, "expected 'Print'")) return false;
+        if(!expect(TokenType::OpenParen, "expected '(' after 'Print'")) return false;
+        if(!check(TokenType::CloseParen))
+        {
+            if(!expression()){
+                cerr << "Syntax error: expected expression inside Print";
+                if(!isAtEnd())
+                {
+                    cerr << " near '" << peek().value << "'";
+                }
+                cerr << endl;
+                return false;
+            }
+            while(match(TokenType::Comma))
+            {
+                if(!expression())
+                {
+                    cerr << "Syntax error: expected expression after ','";
+                    if(!isAtEnd())
+                    {
+                        cerr << " near '" << peek().value << "'";
+                    }
+                    cerr << endl;
+                    return false;
+                }
+            }
+        }
+        if(!expect(TokenType::CloseParen, "expected ')' after Print arguments")) return false;
+        if(!expect(TokenType::SemiColon, "expected ';' after Print")) return false;
+        return true;
     }
 
     bool forStatement()
@@ -184,6 +262,7 @@ private:
         }
         return block();
     }
+
 
     bool enumDeclaration() {
         if(!expect(TokenType::Enum, "expected 'Enum'"))
