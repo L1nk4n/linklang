@@ -57,6 +57,23 @@ enum class TokenType
     ToString,
     ToInt,
     ToBool,
+    ToFloat,
+    Parse,
+
+
+    SubString,
+    Split,
+    Replace,
+    Contains,
+    StartsWith,
+    EndsWith,
+    ToUpper,
+    ToLower,
+    Trim,
+    IndexOf,
+    Format,
+
+
 
     Abs,
     Min,
@@ -64,7 +81,6 @@ enum class TokenType
     Pow,
 
     Concat,
-    SubString,
 
     Bool,
     Double,

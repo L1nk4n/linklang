@@ -69,6 +69,20 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["ToBool"] = TokenType::ToBool;
     reservedIdent["FetchReturn"] = TokenType::ToBool;
 
+    reservedIdent["SubString"] = TokenType::Substring;
+    reservedIdent["Split"] = TokenType::Split;
+    reservedIdent["Replace"] = TokenType::Replace;
+    reservedIdent["Contains"] = TokenType::Contains;
+    reservedIdent["StartsWith"] = TokenType::StartsWith;
+    reservedIdent["EndsWith"] = TokenType::EndsWith;
+    reservedIdent["ToUpper"] = TokenType::ToUpper;
+    reservedIdent["ToLower"] = TokenType::ToLower;
+    reservedIdent["Trim"] = TokenType::Trim;
+    reservedIdent["IndexOf"] = TokenType::IndexOf;
+    reservedIdent["Format"] = TokenType::Format;
+
+
+
     // BuiltIn Math Functions
     reservedIdent["Abs"] = TokenType::Abs;
     reservedIdent["Min"] = TokenType::Min;

@@ -171,6 +171,61 @@ private:
           return inputStatement();
         }
 
+        if(check(TokenType::SubString))
+        {
+          return subStringStatement(); 
+        }
+
+        if(check(TokenType::Split))
+        {
+          return splitStatement();
+        }
+
+        if(check(TokenType::Replace))
+        {
+          return replaceStatement();
+        }
+
+        if(check(TokenType::Contains))
+        {
+          return containsStatement();
+        }
+
+        if(check(TokenType::StartsWith))
+        {
+          return startsWithStatement();
+        }
+
+        if(check(TokenType::EndsWith))
+        {
+          return endsWithStatement();
+        }
+
+        if(check(TokenType::ToUpper))
+        {
+          return toUpperStatement();
+        }
+
+        if(check(TokenType::ToLower))
+        {
+          return toLowerStatement();
+        }
+
+        if(check(TokenType::Trim))
+        {
+          return trimStatement();
+        }
+
+        if(check(TokenType::IndexOf))
+        {
+          return indexOfStatement();
+        }
+
+        if(check(TokenType::Format))
+        {
+          return formatStatement();
+        }
+
         if(check(TokenType::ReadFile))
         {
           return readFileStatement();
@@ -334,6 +389,308 @@ private:
         return true;
     }
 
+
+    bool splitStatement()
+    {
+      if(!expect(TokenType::Split, "expected 'Split'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Split'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'Split'")
+      || !expect(TokenType::StringLiteral, "expected an string inside of 'Split'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'Split'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Split' argument")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Split'")) return false;
+      return true;
+    }
+
+
+    bool replaceStatement()
+    {
+      if(!expect(TokenType::Replace, "expected 'Replace'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Replace'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'Replace'")
+      || !expect(TokenType::StringLiteral, "expected an string inside of 'Replace'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'Replace'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+        while(match(TokenType::Comma))
+        {
+          if(!expression())
+          {
+            cerr << "Syntax error: expected expression after ','";
+            if(!isAtEnd())
+            {
+              cerr << " near '" << peek().value << "'";
+            }
+          }
+          // put in safety features later that will ensure you only can replace two characters or words per Replace call 
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Replace' arguments")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Replace'")) return false;
+      return true;
+    }
+
+    bool startsWithStatement()
+    {
+      if(!expect(TokenType::StartsWith, "expected 'StartsWith'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'StartsWith'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'StartsWith'")
+      || !expect(TokenType::String, "expected string inside of 'StartsWith'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'StartsWith'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'StartsWith' argument")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'StartsWith'")) return false;
+      return true;
+    }
+
+    bool endsWithStatement()
+    {
+      if(!expect(TokenType::EndsWith, "expected 'EndsWith")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'EndsWith'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'EndsWith'")
+      || !expect(TokenType::String, "expected string inside of 'EndsWith'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'EndsWith'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'EndsWith' argument")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'EndsWith'")) return false;
+      return true;
+    }
+
+    bool toUpperStatement()
+    {
+      if(!expect(TokenType::ToUpper, "expected 'ToUpper'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'ToUpper'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'ToUpper'")
+      || !expect(TokenType::String, "expected string inside of 'ToUpper'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'ToUpper'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'ToUpper' argument")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'ToUpper'")) return false;
+      return true;
+    }
+
+
+    bool toLowerStatement()
+    {
+      if(!expect(TokenType::ToLower, "expected 'ToLower'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'ToLower'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'ToLower'")
+      || !expect(TokenType::String, "expected string inside of 'ToLower'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'ToLower'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'ToLower' argument")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'ToUpper'")) return false;
+      return true;
+    }
+
+    bool trimStatement()
+    {
+      if(!expect(TokenType::Trim, "expected 'Trim'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Trim'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'Trim'")
+      || !expect(TokenType::String, "expected string inside of 'Trim'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'Trim'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Trim' argument")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Trim'")) return false;
+      return true;
+    }
+
+    
+    bool indexOfStatement()
+    {
+      if(!expect(TokenType::IndexOf, "expected 'IndexOf'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'IndexOf'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'IndexOf'")
+      || !expect(TokenType::String, "expected string inside of 'IndexOf'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'IndexOf'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'IndexOf' argument")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'IndexOf'")) return false;
+      return true;
+    }
+
+
+    bool formatStatement()
+    {
+      if(!expect(TokenType::Format, "expected 'Format'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Format'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'Format'")
+      || !expect(TokenType::String, "expected string inside of 'Format'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'Format'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Format' argument")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Format'")) return false;
+      return true;
+    }
+
+    bool containsStatement()
+    {
+      if(!expect(TokenType::Contains, "expected 'Contains'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Contains'")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'Contains'")
+      || !expect(TokenType::String, "expected string inside of 'Contains'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'Contains'";
+          if (!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+        while(match(TokenType::Comma))
+        {
+          if(!expression())
+          {
+            cerr << "Syntax error: expected expression after ','";
+            if(!isAtEnd())
+            {
+              cerr << " near '" << peek().value << "'";
+            }
+          }
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Contains' arguments")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Contains'")) return false;
+      return true;
+    }
+
+    bool subStringStatement()
+    {
+      if(!expect(TokenType::SubString, "expected 'SubString'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'SubString")) return false;
+      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'SubString'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside of 'SubString'";
+          if (!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+        while(match(TokenType::Comma))
+        {
+          if(!expression())
+          {
+            cerr << "Syntax error: expected expression after ','";
+            if(!isAtEnd())
+            {
+              cerr << " near '" << peek().value << "'";
+            }
+          }
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'SubString' arguments")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'SubString'")) return false;
+      return true;
+    }
+
     bool lengthStatement()
     {
         if(!expect(TokenType::Length, "expected 'Length'")) return false;
@@ -434,7 +791,7 @@ private:
     {
       if(!expect(TokenType::Close, "expected 'Close'")) return false;
       if(!expect(TokenType::OpenParen, "expected '(' after 'Close'")) return false;
-      if(check(TokenType::CloseParen))
+      if(!check(TokenType::CloseParen))
       {
         cerr << "Syntax error: 'Close' requires a handle argument" << endl;
         return false;
