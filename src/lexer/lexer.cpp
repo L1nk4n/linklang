@@ -69,7 +69,7 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["ToBool"] = TokenType::ToBool;
     reservedIdent["FetchReturn"] = TokenType::ToBool;
 
-    reservedIdent["SubString"] = TokenType::Substring;
+    reservedIdent["SubString"] = TokenType::SubString;
     reservedIdent["Split"] = TokenType::Split;
     reservedIdent["Replace"] = TokenType::Replace;
     reservedIdent["Contains"] = TokenType::Contains;

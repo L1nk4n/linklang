@@ -4,7 +4,6 @@ Function firstFunc {
     PrintLn(x, y);
     Return x + y;
 }
-
 Function secondFunc {
     let return1 = FetchReturn(firstFunc);
     String testString = "dahdhawdh";
@@ -21,4 +20,10 @@ Function secondFunc {
     Close(test);
     Input();
     ReadLine();
+    Format(test);
+    SubString(test);
+    Replace(test, "hellotest");
+    Contains(test, "G");
+    Print(x);
+    PrintLn(x);
 }
