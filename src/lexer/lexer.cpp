@@ -14,7 +14,6 @@
 using namespace std;
 
 
-
 typedef std::map<std::string, TokenType> ReservedIdentMap;
 ReservedIdentMap reservedIdent;
 
@@ -46,6 +45,15 @@ void INIT_RESERVED_IDENTIFIER()
     reservedIdent["String"] = TokenType::String;
 
     // BuiltIn General Functions
+    reservedIdent["Input"] = TokenType::Input;
+    reservedIdent["ReadLine"] = TokenType::ReadLine;
+    reservedIdent["Open"] = TokenType::Open;
+    reservedIdent["Close"] = TokenType::Close;
+    reservedIdent["Error"] = TokenType::Error;
+    reservedIdent["Warn"] = TokenType::Warn;
+    reservedIdent["WriteFile"] = TokenType::WriteFile;
+    reservedIdent["ReadFile"] = TokenType::ReadFile;
+    reservedIdent["AppendFile"] = TokenType::AppendFile;
     reservedIdent["Print"] = TokenType::Print;
     reservedIdent["PrintLn"] = TokenType::PrintLn;
     reservedIdent["Return"] = TokenType::Return;

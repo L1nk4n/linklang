@@ -136,6 +136,51 @@ private:
             return returnStatement();
         }
 
+        if(check(TokenType::WriteFile))
+        {
+          return writeFileStatement();
+        }
+
+        if(check(TokenType::Warn))
+        {
+          return warnStatement();
+        }
+        
+        if(check(TokenType::Error))
+        {
+          return errorStatement();
+        }
+
+        if(check(TokenType::Close))
+        {
+          return closeStatement();
+        }
+
+        if(check(TokenType::Open))
+        {
+          return openStatement();
+        }
+
+        if(check(TokenType::ReadLine))
+        {
+          return readLineStatement();
+        }
+
+        if(check(TokenType::Input))
+        {
+          return inputStatement();
+        }
+
+        if(check(TokenType::ReadFile))
+        {
+          return readFileStatement();
+        }
+
+        if(check(TokenType::AppendFile))
+        {
+          return appendFileStatement();
+        }
+
         if(check(TokenType::PrintLn))
         {
             return printlnStatement();
@@ -311,6 +356,232 @@ private:
         if(!expect(TokenType::CloseParen, "expected ')' after 'Length' argument")) return false;
         if(!expect(TokenType::SemiColon, "expected ';' after 'Length'")) return false;
         return true;
+    }
+
+    bool writeFileStatement()
+    {
+      if(!expect(TokenType::WriteFile, "expected 'WriteFile'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'WriteFile'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside 'WriteFile'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      while(match(TokenType::Comma))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression after ','";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'WriteFile' arguments")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'WriteFile'")) return false;
+      return true;
+    }
+
+    
+    bool openStatement()
+    {
+      if(!expect(TokenType::Open, "expected 'Open'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Open'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside 'Open'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      while(match(TokenType::Comma))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression after ','";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Open' arguments")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Open'")) return false;
+      return true;
+    }
+
+    
+    bool closeStatement()
+    {
+      if(!expect(TokenType::Close, "expected 'Close'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Close'")) return false;
+      if(check(TokenType::CloseParen))
+      {
+        cerr << "Syntax error: 'Close' requires a handle argument" << endl;
+        return false;
+      }
+      if(!expression())
+      {
+        cerr << "Syntax error: expected expression inside 'Close'";
+        if(!isAtEnd()) cerr << " near '" << peek().value << "'";
+        cerr << endl;
+        return false;
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Close' handle")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Close'")) return false;
+      return true;
+    }
+
+    bool inputStatement()
+    {
+      if(!expect(TokenType::Input, "expected 'Input'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Input'")) return false;
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Input'")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Input'")) return false;
+      return true;
+    }
+
+    bool readLineStatement()
+    {
+      if(!expect(TokenType::ReadLine, "expected 'ReadLine'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'ReadLine'")) return false;
+      if(!expect(TokenType::CloseParen, "expected ')' after 'ReadLine'")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'ReadLine'")) return false;
+      return true;
+    }
+
+    bool errorStatement()
+    {
+      if(!expect(TokenType::Error, "expected 'Error'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Error'")) return false;
+      if(check(TokenType::CloseParen))
+      {
+        cerr << "Syntax error: 'Error' requires a message" << endl;
+        return false;
+      }
+
+      if(!expression())
+      {
+        cerr << "Syntax error: expected expression inside 'Error'";
+        if(!isAtEnd()) cerr << " near '" << peek().value << "'";
+        cerr << endl;
+        return false;
+      }
+
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Error' message")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Error'")) return false;
+      return true;
+    }
+
+    bool warnStatement()
+    {
+      if(!expect(TokenType::Warn, "expected 'Warn'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Warn'")) return false;
+      if(check(TokenType::CloseParen))
+      {
+        cerr << "Syntax error: 'Warn' requires a message" << endl;
+        return false;
+      }
+      if(!expression())
+      {
+        cerr << "Syntax error: expected expression inside 'Warn'";
+        if(!isAtEnd()) cerr << " near '" << peek().value << "'";
+        cerr << endl;
+        return false;
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Warn' message")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Warn'")) return false;
+      return true;
+    }
+    
+    bool readFileStatement()
+    {
+      if(!expect(TokenType::ReadFile, "expected 'ReadFile")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'ReadFile'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside 'ReadFile'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      while(match(TokenType::Comma))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression after ','";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'ReadFile' arguments")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'ReadFile'")) return false;
+      return true;
+    }
+
+    
+    bool appendFileStatement()
+    {
+      if(!expect(TokenType::AppendFile, "expected 'AppendFile")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'AppendFile'")) return false;
+      if(!check(TokenType::CloseParen))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression inside 'AppendFile'";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      while(match(TokenType::Comma))
+      {
+        if(!expression())
+        {
+          cerr << "Syntax error: expected expression after ','";
+          if(!isAtEnd())
+          {
+            cerr << " near '" << peek().value << "'";
+          }
+          cerr << endl;
+          return false;
+        }
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'AppendFile' arguments")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'AppendFile'")) return false;
+      return true;
     }
 
     bool printStatement()

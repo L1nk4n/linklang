@@ -34,6 +34,15 @@ enum class TokenType
     Function,
     
     // BuiltIn
+    WriteFile,
+    ReadFile,
+    AppendFile,
+    Input,
+    ReadLine,
+    Open,
+    Close,
+    Error,
+    Warn,
     Print,
     PrintLn,
     FetchReturn,

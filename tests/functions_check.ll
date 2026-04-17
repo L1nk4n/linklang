@@ -12,4 +12,13 @@ Function secondFunc {
     Length(return1);
     Length(testString);
     TypeOf(return1);
+    WriteFile(return1, "string");
+    ReadFile(path);
+    AppendFile(path, "string");
+    Error("test");
+    Warn("test");
+    Open(test, nothing);
+    Close(test);
+    Input();
+    ReadLine();
 }
