@@ -419,35 +419,80 @@ private:
     {
       if(!expect(TokenType::Replace, "expected 'Replace'")) return false;
       if(!expect(TokenType::OpenParen, "expected '(' after 'Replace'")) return false;
-      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'Replace'")
-      || !expect(TokenType::StringLiteral, "expected an string inside of 'Replace'")) return false;
-      if(!check(TokenType::CloseParen))
+  
+      if(check(TokenType::Identifier) || check(TokenType::StringLiteral))
       {
-        if(!expression())
+        advance();
+      }
+      else
+      {
+        cerr << "Syntax error: expected identifier or string as first argument of 'Replace'";
+        if(!isAtEnd())
         {
-          cerr << "Syntax error: expected expression inside of 'Replace'";
-          if(!isAtEnd())
-          {
-            cerr << " near '" << peek().value << "'";
-          }
-          cerr << endl;
-          return false;
+          cerr << " near '" << peek().value << "'";
         }
-        while(match(TokenType::Comma))
+        cerr << endl;
+        return false;
+      } 
+      if(!expect(TokenType::Comma, "expected ',' between 'Replace' arguments")) return false;
+  
+      if(check(TokenType::Identifier) || check(TokenType::StringLiteral))
+      {
+        advance();
+      }
+      else
+      {
+        cerr << "Syntax error: expected identifier or string as second argument of 'Replace'";
+        if(!isAtEnd())
         {
-          if(!expression())
-          {
-            cerr << "Syntax error: expected expression after ','";
-            if(!isAtEnd())
-            {
-              cerr << " near '" << peek().value << "'";
-            }
-          }
-          // put in safety features later that will ensure you only can replace two characters or words per Replace call 
+          cerr << " near '" << peek().value << "'";
         }
+        cerr << endl;
+        return false;
       }
       if(!expect(TokenType::CloseParen, "expected ')' after 'Replace' arguments")) return false;
       if(!expect(TokenType::SemiColon, "expected ';' after 'Replace'")) return false;
+      return true;
+    }
+
+
+    bool containsStatement()
+    {
+      if(!expect(TokenType::Contains, "expected 'Contains'")) return false;
+      if(!expect(TokenType::OpenParen, "expected '(' after 'Contains'")) return false;
+  
+      if(check(TokenType::Identifier) || check(TokenType::StringLiteral))
+      {
+        advance();
+      }
+      else
+      {
+        cerr << "Syntax error: expected identifier or string as first argument of 'Contains'";
+        if(!isAtEnd())
+        {
+          cerr << " near '" << peek().value << "'";
+        }
+        cerr << endl;
+        return false;
+      } 
+      if(!expect(TokenType::Comma, "expected ',' between 'Contains' arguments")) return false;
+  
+      if(check(TokenType::Identifier) || check(TokenType::StringLiteral))
+      {
+        advance();
+      }
+      else
+      {
+        cerr << "Syntax error: expected identifier or string as second argument of 'Contains'";
+        if(!isAtEnd())
+        {
+          cerr << " near '" << peek().value << "'";
+        }
+        cerr << endl;
+        return false;
+      }
+      if(!expect(TokenType::CloseParen, "expected ')' after 'Contains' arguments")) return false;
+      if(!expect(TokenType::SemiColon, "expected ';' after 'Contains'")) return false;
       return true;
     }
 
@@ -602,8 +647,23 @@ private:
     {
       if(!expect(TokenType::Format, "expected 'Format'")) return false;
       if(!expect(TokenType::OpenParen, "expected '(' after 'Format'")) return false;
-      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'Format'")
-      || !expect(TokenType::String, "expected string inside of 'Format'")) return false;
+      if(check(TokenType::Identifier))
+      {
+        advance();
+      }
+      else if(check(TokenType::StringLiteral))
+      {
+        advance();
+      }
+      else {
+        cerr << "Syntax error: expected identifier or string inside of 'Format'";
+        if(!isAtEnd())
+        {
+          cerr << " near '" << peek().value << "'";
+        }
+        cerr << endl;
+        return false;
+      }
       if(!check(TokenType::CloseParen))
       {
         if(!expression())
@@ -619,41 +679,6 @@ private:
       }
       if(!expect(TokenType::CloseParen, "expected ')' after 'Format' argument")) return false;
       if(!expect(TokenType::SemiColon, "expected ';' after 'Format'")) return false;
-      return true;
-    }
-
-    bool containsStatement()
-    {
-      if(!expect(TokenType::Contains, "expected 'Contains'")) return false;
-      if(!expect(TokenType::OpenParen, "expected '(' after 'Contains'")) return false;
-      if(!expect(TokenType::Identifier, "expected declared variable name inside of 'Contains'")
-      || !expect(TokenType::String, "expected string inside of 'Contains'")) return false;
-      if(!check(TokenType::CloseParen))
-      {
-        if(!expression())
-        {
-          cerr << "Syntax error: expected expression inside of 'Contains'";
-          if (!isAtEnd())
-          {
-            cerr << " near '" << peek().value << "'";
-          }
-          cerr << endl;
-          return false;
-        }
-        while(match(TokenType::Comma))
-        {
-          if(!expression())
-          {
-            cerr << "Syntax error: expected expression after ','";
-            if(!isAtEnd())
-            {
-              cerr << " near '" << peek().value << "'";
-            }
-          }
-        }
-      }
-      if(!expect(TokenType::CloseParen, "expected ')' after 'Contains' arguments")) return false;
-      if(!expect(TokenType::SemiColon, "expected ';' after 'Contains'")) return false;
       return true;
     }
 
@@ -791,7 +816,7 @@ private:
     {
       if(!expect(TokenType::Close, "expected 'Close'")) return false;
       if(!expect(TokenType::OpenParen, "expected '(' after 'Close'")) return false;
-      if(!check(TokenType::CloseParen))
+      if(check(TokenType::CloseParen))
       {
         cerr << "Syntax error: 'Close' requires a handle argument" << endl;
         return false;

@@ -20,9 +20,10 @@ Function secondFunc {
     Close(test);
     Input();
     ReadLine();
-    Format(test);
+    Format("test");
+    Format("test");
     SubString(test);
-    Replace(test, "hellotest");
+    Replace("hellotest2", "hellotest");
     Contains(test, "G");
     Print(x);
     PrintLn(x);
