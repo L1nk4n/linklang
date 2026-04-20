@@ -1,0 +1,33 @@
+Function firstFunc {
+    let x = 5;
+    let y = 10;
+    PrintLn(x, y);
+    Return x + y;
+}
+Function secondFunc {
+    let return1 = FetchReturn(firstFunc);
+    String testString = "dahdhawdh";
+    SizeOf(return1);
+    Length(return1);
+    Length(testString);
+    TypeOf(return1);
+    WriteFile(return1, "string");
+    ReadFile(path);
+    AppendFile(path, "string");
+    Error("test");
+    Warn("test");
+    Open(test, nothing);
+    Close(test);
+    Input();
+    ReadLine();
+    Format("test");
+    Format("test");
+    SubString(test);
+    Replace("hellotest2", "hellotest");
+    Replace(str1, str2);
+    Contains(test, "G");
+    Contains(string, lettern);
+    Contains("hello, world", ","); 1,  0
+    Print(x);
+    PrintLn(x);
+}
