@@ -14,6 +14,8 @@ enum class Type {
     UNKNOWN
 };
 
+std::string typeToString(Type t);
+
 struct Symbol {
     enum class Kind { Variable, Function, Struct };
     Kind kind;
@@ -94,7 +96,12 @@ struct VarDecl : Stmt {
 };
 
 struct ReturnStmt : Stmt {
+    std::unique_ptr<Expr> expr;
+    ReturnStmt() = default;
+    explicit ReturnStmt(std::unique_ptr<Expr> e) : expr(std::move(e)) {}
+
     void analyze(SemanticContext& ctx) override;
+
 };
 
 struct ExitStmt : Stmt {

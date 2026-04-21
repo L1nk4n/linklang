@@ -1,5 +1,34 @@
 #include "semantic.h"
 
+std::string typeToString(Type t)
+{
+  switch(t) {
+    case Type::Ui8: return "ui8";
+    case Type::Ui16: return "ui16";
+    case Type::Ui32: return "ui32";
+    case Type::Ui64: return "ui64";
+    case Type::Ui128: return "ui128";
+    case Type::I8: return "i8";
+    case Type::I16: return "i16";
+    case Type::I32: return "i32";
+    case Type::I64: return "i64";
+    case Type::I128: return "i128";
+    case Type::Double: return "double";
+    case Type::Float: return "float";
+    case Type::Long: return "long";
+    case Type::String: return "string";
+    case Type::Enum: return "enum";
+    case Type::Array: return "array";
+    case Type::Interface: return "interface";
+    case Type::Struct: return "struct";
+    case Type::Object: return "object";
+    case Type::Class: return "class";
+    case Type::Void: return "void";
+    case Type::UNKNOWN: return "unknown";
+  }
+  return "unknown";
+}
+
 Symbol* Scope::lookup(const std::string& name) {
     auto it = symbols.find(name);
     if (it != symbols.end()) return &it->second;
@@ -74,6 +103,34 @@ void VarDecl::analyze(SemanticContext& ctx) {
 }
 
 void ReturnStmt::analyze(SemanticContext& ctx) {
+  if(ctx.currentFunctionReturnType == Type::UNKNOWN)
+  {
+    ctx.error("'return' statement outside of any function");
+    return;
+  }
+
+  Type expected = ctx.currentFunctionReturnType;
+
+
+  if(!expr)
+  {
+    if(expected != Type::Void)
+    {
+      ctx.error("non-void function must return a value");
+    }
+    return;
+  }
+
+  Type actual = expr->analyze(ctx);
+
+  if(expected == Type::Void)
+  {
+    ctx.error("void function cannot return a value");
+  } else if(actual != expected)
+  {
+    ctx.error("return type mismatch in function: expected '"
+        + typeToString(expected) + ", got " + typeToString(actual));
+  }
 }
 
 void ClassDecl::analyze(SemanticContext& ctx) {
