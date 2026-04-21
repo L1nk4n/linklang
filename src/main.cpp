@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cstring>
 #include "parser/parser.h"
+#include "driver/driver.h"
 
 using namespace std;
 
@@ -67,6 +68,14 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     cout << "Semantic analysis passed" << endl;
+
+    if(runPipeline(argv[1], "a.out") != 0)
+    {
+      cerr << "Code generation failed" << endl;
+      return EXIT_FAILURE;
+    }
+
+    cout << "Build success ./a.out" << endl;
 
     return EXIT_SUCCESS;
 }
