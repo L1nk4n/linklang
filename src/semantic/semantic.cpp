@@ -139,6 +139,11 @@ Type IntLiteral::analyze(SemanticContext& ctx) {
   return declaredType;
 }
 
+Type StringLiteral::analyze(SemanticContext& ctx) {
+  (void)ctx;
+  return Type::String;
+}
+
 Type IdentExpr::analyze(SemanticContext& ctx) {
   Symbol* sym = ctx.currentScope->lookup(name);
   if(!sym) {

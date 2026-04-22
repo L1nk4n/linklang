@@ -10,8 +10,16 @@ struct Function;
 struct Module;
 
 enum class IRType {
+  I8,
+  I16,
   I32,
   I64,
+  I128,
+  Ui8,
+  Ui16,
+  Ui32,
+  Ui64,
+  Ui128,
   Ptr,
   Void,
 };
@@ -30,6 +38,9 @@ enum class Opcode {
   Load,
   Store,
   Ret,
+  PrintStr,
+  PrintInt,
+  PrintNewLine
 };
 
 struct Instruction {
@@ -53,4 +64,5 @@ struct Function {
 
 struct Module {
   std::vector<Function> functions;
+  std::vector<std::string> stringLiterals;
 };

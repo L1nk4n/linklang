@@ -1,4 +1,5 @@
 Function main {
-    i32 x = 7;
-    Return x;
+    Print("hello");
+    PrintLn("world");
+    Return 0;
 }

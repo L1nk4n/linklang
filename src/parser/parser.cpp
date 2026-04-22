@@ -119,8 +119,8 @@ private:
         if (check(TokenType::Exit)) return exitStatement();
 
         if (check(TokenType::Length)) { if (!lengthStatement()) return nullptr; return make_unique<BuiltinCallStmt>("Length"); }
-        if (check(TokenType::Print)) { if (!printStatement()) return nullptr; return make_unique<BuiltinCallStmt>("Print"); }
-        if (check(TokenType::PrintLn)) { if (!printlnStatement()) return nullptr; return make_unique<BuiltinCallStmt>("PrintLn"); }
+        if (check(TokenType::Print)) return printStatement();
+        if (check(TokenType::PrintLn)) return printlnStatement();
         if (check(TokenType::TypeOf)) { if (!TypeOfStatement()) return nullptr; return make_unique<BuiltinCallStmt>("TypeOf"); }
         if (check(TokenType::SizeOf)) { if (!SizeOfStatement()) return nullptr; return make_unique<BuiltinCallStmt>("SizeOf"); }
         if (check(TokenType::WriteFile)) { if (!writeFileStatement()) return nullptr; return make_unique<BuiltinCallStmt>("WriteFile"); }
@@ -295,6 +295,12 @@ private:
     }
 
     unique_ptr<Expr> parseExprNode() {
+      if(check(TokenType::StringLiteral))
+      {
+        std::string text = peek().value;
+        advance();
+        return std::make_unique<StringLiteral>(text);
+      }
         if (check(TokenType::Number)) {
             string text = peek().value;
             advance();
@@ -797,52 +803,44 @@ private:
         return true;
     }
 
-    bool printStatement() {
-        if (!expect(TokenType::Print, "expected 'Print'")) return false;
-        if (!expect(TokenType::OpenParen, "expected '(' after 'Print'")) return false;
+    unique_ptr<Stmt> printStatement() {
+        if (!expect(TokenType::Print, "expected 'Print'")) return nullptr;
+        if (!expect(TokenType::OpenParen, "expected '(' after 'Print'")) return nullptr;
+        
+        std::vector<std::unique_ptr<Expr>> args;
         if (!check(TokenType::CloseParen)) {
-            if (!expression()) {
-                cerr << "Syntax error: expected expression inside 'Print'";
-                if (!isAtEnd()) cerr << " near '" << peek().value << "'";
-                cerr << endl;
-                return false;
-            }
+            auto e = parseExprNode();
+            if(!e) return nullptr;
+            args.push_back(std::move(e));
             while (match(TokenType::Comma)) {
-                if (!expression()) {
-                    cerr << "Syntax error: expected expression after ','";
-                    if (!isAtEnd()) cerr << " near '" << peek().value << "'";
-                    cerr << endl;
-                    return false;
-                }
+              auto e2 = parseExprNode();
+              if(!e2) return nullptr;
+              args.push_back(std::move(e2));
             }
         }
-        if (!expect(TokenType::CloseParen, "expected ')' after 'Print' arguments")) return false;
-        if (!expect(TokenType::SemiColon, "expected ';' after 'Print'")) return false;
-        return true;
+        if (!expect(TokenType::CloseParen, "expected ')' after 'Print' arguments")) return nullptr;
+        if (!expect(TokenType::SemiColon, "expected ';' after 'Print'")) return nullptr;
+        return make_unique<BuiltinCallStmt>("Print", std::move(args));
     }
 
-    bool printlnStatement() {
-        if (!expect(TokenType::PrintLn, "expected 'PrintLn'")) return false;
-        if (!expect(TokenType::OpenParen, "expected '(' after 'PrintLn'")) return false;
+  unique_ptr<Stmt> printlnStatement() {
+        if (!expect(TokenType::PrintLn, "expected 'PrintLn'")) return nullptr;
+        if (!expect(TokenType::OpenParen, "expected '(' after 'PrintLn'")) return nullptr;
+
+        std::vector<std::unique_ptr<Expr>> args;
         if (!check(TokenType::CloseParen)) {
-            if (!expression()) {
-                cerr << "Syntax error: expected expression inside 'PrintLn'";
-                if (!isAtEnd()) cerr << " near '" << peek().value << "'";
-                cerr << endl;
-                return false;
-            }
+            auto e = parseExprNode();
+            if(!e) return nullptr;
+            args.push_back(std::move(e));
             while (match(TokenType::Comma)) {
-                if (!expression()) {
-                    cerr << "Syntax error: expected expression after ','";
-                    if (!isAtEnd()) cerr << " near '" << peek().value << "'";
-                    cerr << endl;
-                    return false;
-                }
+                auto e2 = parseExprNode();
+                if(!e2) return nullptr;
+                args.push_back(std::move(e2));
             }
         }
-        if (!expect(TokenType::CloseParen, "expected ')' after 'PrintLn' arguments")) return false;
-        if (!expect(TokenType::SemiColon, "expected ';' after 'PrintLn'")) return false;
-        return true;
+        if (!expect(TokenType::CloseParen, "expected ')' after 'PrintLn' arguments")) return nullptr;
+        if (!expect(TokenType::SemiColon, "expected ';' after 'PrintLn'")) return nullptr;
+        return make_unique<BuiltinCallStmt>("PrintLn", std::move(args));
     }
 
     bool expression() {

@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <sstream>
 #include "../parser/parser.h"
+#include "../codegen/x86_64/codegen.h"
 #include "../semantic/semantic.h"
 #include "../ir/builder.h"
 #include "../ir/printer.h"
@@ -43,7 +44,7 @@ int runPipeline(const std::string &inputPath, const std::string &outputPath) {
   {
     std::ofstream asmFile("/tmp/linklang_out.s");
     if(!asmFile) return 1;
-    emitExitProgram(asmFile, 42);
+    generateCode(ir, asmFile);
   }
 
   if (std::system("as -o /tmp/linklang_out.o /tmp/linklang_out.s") != 0) return 1;

@@ -77,6 +77,12 @@ struct IdentExpr : Expr {
   Type analyze(SemanticContext& ctx) override;
 };
 
+struct StringLiteral : Expr {
+  std::string value;
+  explicit StringLiteral(std::string v) : value(std::move(v)) {}
+  Type analyze(SemanticContext& ctx) override;
+};
+
 struct FunctionDecl : Stmt {
     std::string name;
     Type returnType;
@@ -126,8 +132,10 @@ struct ExitStmt : Stmt {
 
 struct BuiltinCallStmt : Stmt {
     std::string name;
+    std::vector<std::unique_ptr<Expr>> args;
 
-    BuiltinCallStmt(std::string n) : name(std::move(n)) {}
+    BuiltinCallStmt(std::string n, std::vector<std::unique_ptr<Expr>> a = {})
+      : name(std::move(n)), args(std::move(a)) {}
 
     void analyze(SemanticContext& ctx) override {}
 };

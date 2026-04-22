@@ -496,7 +496,11 @@ vector<Token> tokenize(string &sourceCode)
             }
             else if(isStringLiteral(src.front()))
             {
-                tokens.push_back(token(shift(src), TokenType::StringLiteral));
+                std::string raw = shift(src);
+                if(raw.size() >= 2 && raw.front() == '"' && raw.back() == '"') {
+                  raw = raw.substr(1, raw.size() - 2);
+                }
+                tokens.push_back(token(raw, TokenType::StringLiteral));
             }
             else if (isAlpha(src.front()))
             {

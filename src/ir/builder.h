@@ -17,6 +17,7 @@ class IRBuilder {
     void lowerVarDecl(VarDecl* v);
     void lowerReturnStmt(ReturnStmt* r);
     Value lowerExpr(Expr* e);
+    void lowerBuiltinCall(BuiltinCallStmt* b);
 
     Value freshValue(IRType t);
     Value constInt(int64_t v, IRType t);

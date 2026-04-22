@@ -23,6 +23,9 @@ std::string opcodeToString(Opcode op)
     case Opcode::Load: return "load";
     case Opcode::Store: return "store";
     case Opcode::Ret: return "ret";
+    case Opcode::PrintStr: return "printstr";
+    case Opcode::PrintNewLine: return "printnl";
+    case Opcode::PrintInt: return "printint";
   }
   return "?";
 };
@@ -40,7 +43,11 @@ void printInstruction(const Instruction& inst, std::ostream& out)
 {
   out << "    ";
   bool hasResult =
-    inst.op != Opcode::Store && inst.op != Opcode::Ret;
+    inst.op != Opcode::Store &&
+    inst.op != Opcode::Ret &&
+    inst.op != Opcode::PrintStr &&
+    inst.op != Opcode::PrintInt &&
+    inst.op != Opcode::PrintNewLine;
 
   if(hasResult)
   {
@@ -85,6 +92,13 @@ void printFunction(const Function& fn, std::ostream& out)
 
 void printModule(const Module& module, std::ostream& out)
 {
+  if(!module.stringLiterals.empty()) {
+    out << "string_table:\n";
+    for (size_t i = 0; i < module.stringLiterals.size(); ++i) {
+      out << "    @str[" << i << "] = \"" << module.stringLiterals[i] << "\"\n"; 
+    }
+    out << "\n";
+  }
   for(const auto& fn : module.functions)
   {
     printFunction(fn, out);

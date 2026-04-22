@@ -52,6 +52,11 @@ Value IRBuilder::lowerExpr(Expr* e) {
     std::cerr << "IRBuilder: IdentExpr not yet supported (need alloca/load)\n";
     return constInt(0, IRType::I32);
   }
+  if(auto* slit = dynamic_cast<StringLiteral*>(e)) {
+    int idx = (int)module.stringLiterals.size();
+    module.stringLiterals.push_back(slit->value);
+    return constInt(idx, IRType::I32);
+  }
   std::cerr << "IRBuilder: unsupported expression kind\n";
   return constInt(0, IRType::I32);
 }
@@ -63,6 +68,25 @@ void IRBuilder::lowerReturnStmt(ReturnStmt* r) {
   }
   Value v = lowerExpr(r->expr.get());
   emit(Opcode::Ret, IRType::Void, { v });
+}
+
+void IRBuilder::lowerBuiltinCall(BuiltinCallStmt* b){
+  if(b->name == "Print") {
+    for(auto& arg : b->args) {
+      Value v = lowerExpr(arg.get());
+      emit(Opcode::PrintStr, IRType::Void, { v });
+    }
+  }
+  else if(b->name == "PrintLn") {
+    for(auto& arg : b->args) {
+      Value v = lowerExpr(arg.get());
+      emit(Opcode::PrintStr, IRType::Void, { v });
+    }
+    emit(Opcode::PrintNewLine, IRType::Void, {});
+  }
+  else {
+    std::cerr << "IRBuilder: builtin '" << b->name << "' not yet supported\n";
+  }
 }
 
 void IRBuilder::lowerVarDecl(VarDecl* v) {
@@ -77,6 +101,8 @@ void IRBuilder::lowerStmt(Stmt* s) {
     lowerVarDecl(v);
   } else if(auto* f = dynamic_cast<FunctionDecl*>(s)) {
     lowerFunctionDecl(f);
+  } else if(auto* b = dynamic_cast<BuiltinCallStmt*>(s)) {
+      lowerBuiltinCall(b);
   } else {
     std::cerr << "IRBuilder: unsupported statement kind\n";
   }
