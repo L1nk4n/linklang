@@ -1,5 +1,6 @@
 #pragma once
 #include "ir.h"
+#include <unordered_map>
 #include "../semantic/semantic.h"
 
 class IRBuilder {
@@ -10,6 +11,8 @@ class IRBuilder {
     Module module;
     Function* currentFunction = nullptr;
     BasicBlock* currentBlock = nullptr;
+
+    std::unordered_map<std::string, Value> locals;
 
 
     void lowerStmt(Stmt* s);

@@ -108,13 +108,13 @@ struct StructDecl : Stmt {
 };
 
 struct VarDecl : Stmt {
-    std::string name;
-    Type type;
+  std::string name;
+  Type type;
+  std::unique_ptr<Expr> init;
+  VarDecl(std::string n, Type t, std::unique_ptr<Expr> i = nullptr)
+    : name(std::move(n)), type(t), init(std::move(i)) {}
 
-    VarDecl(std::string n, Type t)
-        : name(std::move(n)), type(t) {}
-
-    void analyze(SemanticContext& ctx) override;
+  void analyze(SemanticContext& ctx) override;
 };
 
 struct ReturnStmt : Stmt {

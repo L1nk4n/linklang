@@ -95,12 +95,22 @@ void StructDecl::analyze(SemanticContext& ctx) {
 }
 
 void VarDecl::analyze(SemanticContext& ctx) {
-    Symbol sym;
-    sym.kind = Symbol::Kind::Variable;
-    sym.type = type;
-    if (!ctx.currentScope->declare(name, sym)) {
-        ctx.error("Variable '" + name + "' already declared in this scope");
+  Symbol sym;
+  sym.kind = Symbol::Kind::Variable;
+  sym.type = type;
+
+  if(!ctx.currentScope->declare(name, sym)) {
+    ctx.error("Variable '" + name + "' already declared in this scope");
+    return;
+  }
+
+  if(init) {
+    Type actual = init->analyze(ctx);
+    if(actual != type && actual != Type::UNKNOWN) {
+      ctx.error("Type mismatch in declaration of '" + name
+          + "': declared" + typeToString(type) + ", got " + typeToString(actual));
     }
+  }
 }
 
 void ReturnStmt::analyze(SemanticContext& ctx) {

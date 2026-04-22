@@ -213,14 +213,10 @@ private:
         if (!expect(TokenType::Identifier, "expected identifier after type")) return nullptr;
         string name = previous().value;
         if (!expect(TokenType::Equals, "expected '=' after identifier")) return nullptr;
-        if (!expression()) {
-            cerr << "Syntax error: expected expression after '='";
-            if (!isAtEnd()) cerr << " near '" << peek().value << "'";
-            cerr << endl;
-            return nullptr;
-        }
+        auto initExpr = parseExprNode();
+        if(!initExpr) return nullptr;
         if (!expect(TokenType::SemiColon, "expected ';' after typed declaration")) return nullptr;
-        return make_unique<VarDecl>(name, tokenTypeToType(typeToken));
+        return make_unique<VarDecl>(name, tokenTypeToType(typeToken), std::move(initExpr));
     }
 
     unique_ptr<Stmt> functionDeclaration() {

@@ -49,8 +49,12 @@ Value IRBuilder::lowerExpr(Expr* e) {
     return emit(Opcode::Const, t, { constInt(lit->value, t)} );
   }
   if(auto* id = dynamic_cast<IdentExpr*>(e)) {
-    std::cerr << "IRBuilder: IdentExpr not yet supported (need alloca/load)\n";
-    return constInt(0, IRType::I32);
+    auto it = locals.find(id->name);
+    if(it == locals.end()) {
+      std::cerr << "IRBuilder: identifier '" << id->name << "' has no slot\n";
+      return constInt(0, IRType::I32);
+    }
+    return emit(Opcode::Load, IRType::I32, { it->second });
   }
   if(auto* slit = dynamic_cast<StringLiteral*>(e)) {
     int idx = (int)module.stringLiterals.size();
@@ -90,8 +94,17 @@ void IRBuilder::lowerBuiltinCall(BuiltinCallStmt* b){
 }
 
 void IRBuilder::lowerVarDecl(VarDecl* v) {
-  (void)v;
-  std::cerr << "IRBuilder: VarDecl lowering not yet implemented\n";
+  IRType t = toIRType(v->type);
+
+  Value slot = emit(Opcode::Alloca, IRType::Ptr, {});
+  locals[v->name] = slot;
+
+  if(v->init) {
+    Value initVal = lowerExpr(v->init.get());
+    emit(Opcode::Store, IRType::Void, { initVal, slot });
+  }
+
+  (void)t;
 }
 
 void IRBuilder::lowerStmt(Stmt* s) {
@@ -109,6 +122,7 @@ void IRBuilder::lowerStmt(Stmt* s) {
 }
 
 void IRBuilder::lowerFunctionDecl(FunctionDecl* f) {
+  locals.clear();
   Function fn;
   fn.name = f->name;
   fn.returnType = toIRType(f->returnType);
