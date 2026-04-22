@@ -229,7 +229,7 @@ private:
         string name = previous().value;
         vector<unique_ptr<Stmt>> body;
         if (!block(body)) return nullptr;
-        return make_unique<FunctionDecl>(name, Type::UNKNOWN, vector<Param>{}, std::move(body));
+        return make_unique<FunctionDecl>(name, Type::I32, vector<Param>{}, std::move(body));
     }
 
     unique_ptr<Stmt> classDeclaration() {
@@ -294,16 +294,37 @@ private:
         return make_unique<WhileStmt>(std::move(body));
     }
 
+    unique_ptr<Expr> parseExprNode() {
+        if (check(TokenType::Number)) {
+            string text = peek().value;
+            advance();
+            try {
+                int64_t v = stoll(text);
+                return make_unique<IntLiteral>(v, Type::I32);
+            } catch (...) {
+                cerr << "Parse error: invalid integer literal '" << text << "'\n";
+                return nullptr;
+            }
+        }
+
+        if (check(TokenType::Identifier)) {
+            string name = peek().value;
+            advance();
+            return make_unique<IdentExpr>(name);
+        }
+
+        cerr << "Syntax error: expected expression";
+        if (!isAtEnd()) cerr << " near '" << peek().value << "'";
+        cerr << "\n";
+        return nullptr;
+    }
+
     unique_ptr<Stmt> returnStatement() {
         if (!expect(TokenType::Return, "expected 'Return'")) return nullptr;
-        if (!expression()) {
-            cerr << "Syntax error: expected expression after 'Return'";
-            if (!isAtEnd()) cerr << " near '" << peek().value << "'";
-            cerr << endl;
-            return nullptr;
-        }
+        auto e = parseExprNode();
+        if (!e) return nullptr;
         if (!expect(TokenType::SemiColon, "expected ';' after 'Return'")) return nullptr;
-        return make_unique<ReturnStmt>();
+        return make_unique<ReturnStmt>(std::move(e));
     }
 
     unique_ptr<Stmt> exitStatement() {

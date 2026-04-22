@@ -11,7 +11,8 @@ enum class Type {
     Double, Float, Long, String,
     Enum, Array, Interface, Struct, Object, Class,
     Void,
-    UNKNOWN
+    UNKNOWN,
+    NotInFunction,
 };
 
 std::string typeToString(Type t);
@@ -35,7 +36,7 @@ struct Scope {
 
 struct SemanticContext {
     Scope* currentScope;
-    Type currentFunctionReturnType = Type::UNKNOWN;
+    Type currentFunctionReturnType = Type::NotInFunction;
     std::vector<std::string> errors;
 
     void error(const std::string& msg) { errors.push_back(msg); }
@@ -59,6 +60,21 @@ struct Param {
 struct Field {
     std::string name;
     Type type;
+};
+
+
+
+struct IntLiteral : Expr {
+  int64_t value;
+  Type declaredType;
+  IntLiteral(int64_t v, Type t = Type::I32) : value(v), declaredType(t) {}
+  Type analyze(SemanticContext& ctx) override;
+};
+
+struct IdentExpr : Expr {
+  std::string name;
+  explicit IdentExpr(std::string n) : name(std::move(n)) {}
+  Type analyze(SemanticContext& ctx) override;
 };
 
 struct FunctionDecl : Stmt {

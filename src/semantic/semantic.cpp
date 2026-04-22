@@ -25,6 +25,7 @@ std::string typeToString(Type t)
     case Type::Class: return "class";
     case Type::Void: return "void";
     case Type::UNKNOWN: return "unknown";
+    case Type::NotInFunction: return "<not-in-function>";
   }
   return "unknown";
 }
@@ -103,7 +104,7 @@ void VarDecl::analyze(SemanticContext& ctx) {
 }
 
 void ReturnStmt::analyze(SemanticContext& ctx) {
-  if(ctx.currentFunctionReturnType == Type::UNKNOWN)
+  if(ctx.currentFunctionReturnType == Type::NotInFunction)
   {
     ctx.error("'return' statement outside of any function");
     return;
@@ -131,6 +132,25 @@ void ReturnStmt::analyze(SemanticContext& ctx) {
     ctx.error("return type mismatch in function: expected '"
         + typeToString(expected) + ", got " + typeToString(actual));
   }
+}
+
+Type IntLiteral::analyze(SemanticContext& ctx) {
+  (void)ctx;
+  return declaredType;
+}
+
+Type IdentExpr::analyze(SemanticContext& ctx) {
+  Symbol* sym = ctx.currentScope->lookup(name);
+  if(!sym) {
+    ctx.error("Undeclared identifier '" + name + "'");
+    return Type::UNKNOWN;
+  }
+  if(sym->kind != Symbol::Kind::Variable)
+  {
+    ctx.error("'" + name + "' is not a variable");
+    return Type::UNKNOWN;
+  }
+  return sym->type;
 }
 
 void ClassDecl::analyze(SemanticContext& ctx) {
